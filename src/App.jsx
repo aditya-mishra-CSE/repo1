@@ -12,6 +12,7 @@ import ReactSketch from './components/ReactSketch'
 import Draw from './components/Tail'
 import Task from './components/task'
 import Toolbar from './components/Toolbar'
+import SelectFeature from './components/SelectFeature'
 
 function App() {
   
@@ -28,9 +29,9 @@ function App() {
       {/* <ReDraw/> */}
       {/* <Draw/> */}
       {/* <Finale/> */}
-      <Newer/>
+{/*       <Newer/> */}
       {/* <Konvas/> */}
-      
+         <SelectFeature/>
     </>
   )
 }
