@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Default Light Mode */
+body {
+  --bg-color: #f3f4f6;
+  --canvas-bg: #ffffff;
+  --toolbar-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --text-color: #374151;
+  --hover-color: #3b82f6;
+  --pen-color: #000000;
+}
+
+/* Dark Mode */
+body.dark {
+  --bg-color: #1f2937;
+  --canvas-bg: #0d1117;      
+  --toolbar-bg: #374151;     
+  --border-color: #4b5563;
+  --text-color: #f3f4f6;     
+  --hover-color: #60a5fa;
+  --pen-color: #f3f4f6;       
+}
+
+/* Apply the variables */
+html, body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.canvas-wrapper {
+  background-color: var(--canvas-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+   overflow: hidden;  /* ✅ removes extra space below */
+  line-height: 0; /* ✅ prevents inline-canvas spacing */
+
+}
+.whiteboard-container {
+  display: flex;
+  gap: 1rem;  
+  align-items: flex-start;  
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--toolbar-bg);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* .button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  color: var(--text-color);
+} */
+
+
+
+
+/* .button:hover {
+  color: var(--hover-color);
+  background-color: var(--button-bg-hover);
+} */
