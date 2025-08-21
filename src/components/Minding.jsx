@@ -1,708 +1,7 @@
-//below code has a shape select feature 
-
-// import React, { useRef, useState, useEffect } from "react";
-// import {
-//   Stage,
-//   Layer,
-//   Line,
-//   Rect,
-//   Image,
-//   Circle,
-//   Transformer,
-// } from "react-konva";
-// import useImage from "use-image";
-// import {
-//   FaPen,
-//   FaEraser,
-//   FaUndo,
-//   FaRedo,
-//   FaTrash,
-//   FaDownload,
-//   FaFileImport,
-//   FaShapes,
-//   FaSquare,
-//   FaCircle,
-//   FaSlash,
-//   FaMousePointer,
-// } from "react-icons/fa";
-
-// import {
-//   HiOutlineCube,
-//   HiOutlineGlobe,
-//   HiOutlineDesktopComputer,
-// } from "react-icons/hi";
-
-// // Component to render the imported background image
-// const BackgroundImage = ({ imageUrl }) => {
-//   const [image] = useImage(imageUrl);
-//   return <Image image={image} x={0} y={0} width={1100} height={600} />;
-// };
-
-// const Tension = () => {
-//   const stageRef = useRef(null);
-//   const isDrawing = useRef(false);
-//   const transformerRef = useRef(null);
-
-//   // --- STATE MANAGEMENT ---
-//   const [tool, setTool] = useState("pen"); // 'pen', 'eraser', 'select', etc.
-//   const [shapes, setShapes] = useState([]);
-//   const [selectedId, setSelectedId] = useState(null); // State to track which shape is selected
-
-//   // History for Undo/Redo
-//   const [history, setHistory] = useState([[]]);
-//   const [historyStep, setHistoryStep] = useState(0);
-
-//   // Tool properties
-//   const [penColor, setPenColor] = useState("#000000");
-//   const [penSize, setPenSize] = useState(2);
-//   const [eraserSize, setEraserSize] = useState(20);
-//   const [backgroundImage, setBackgroundImage] = useState(null);
-//   const [darkMode, setDarkMode] = useState(false);
-//   const [showColors, setShowColors] = useState(false);
-//   const [showShapes, setShowShapes] = useState(false);
-//   const [, setLineStyle] = useState(null);
-
-//   const colors = [
-//     "#000000",
-//     "#FF0000",
-//     "#008000",
-//     "#0000FF",
-//     "#f3f4f6",
-//     "#FFCDD2",
-//     "#FFF59D",
-//     "#BBDEFB",
-//   ];
-
-//   // --- SELECTION AND DRAWING LOGIC ---
-//  const checkDeselect = (e) => {
-//   const clickedOnEmpty = e.target === e.target.getStage(); // check if click is only on the stage background
-//   if (clickedOnEmpty) {
-//     setSelectedId(null); // clear selectedId
-//     if (transformerRef.current) {
-//       transformerRef.current.nodes([]); // clear transformer selection
-//     }
-//   }
-// };
 
 
-//   const handleMouseDown = (e) => {
-//     // Handle selection first if in 'select' mode
-//     if (tool === "select") {
-//       const clickedOnStage = e.target.getStage() === e.target;
-//       const clickedOnShape = !clickedOnStage && e.target.attrs.id;
-
-//       if (clickedOnShape) {
-//         setSelectedId(e.target.attrs.id);
-//       } else {
-//         setSelectedId(null);
-
-//       }
-//       return;
-//     }
-
-//     // Proceed with drawing logic if not in 'select' mode
-//     isDrawing.current = true;
-//     const pos = e.target.getStage().getPointerPosition();
-//     const id = Date.now().toString() + Math.random(); // Create a unique ID for the new shape
-//     let newShape = {};
-
-//     switch (tool) {
-//       case "pen":
-//       case "eraser":
-//         newShape = {
-//           id,
-//           tool,
-//           points: [pos.x, pos.y],
-//           color:
-//             tool === "eraser" ? (darkMode ? "#1a202c" : "#ffffff") : penColor,
-//           size: tool === "eraser" ? eraserSize : penSize,
-//         };
-//         break;
-//       case "rectangle":
-//         newShape = {
-//           id,
-//           tool,
-//           x: pos.x,
-//           y: pos.y,
-//           width: 0,
-//           height: 0,
-//           color: penColor,
-//           size: penSize,
-//         };
-//         break;
-//       case "circle":
-//         newShape = {
-//           id,
-//           tool,
-//           x: pos.x,
-//           y: pos.y,
-//           radius: 0,
-//           color: penColor,
-//           size: penSize,
-//         };
-//         break;
-//       case "line":
-//         newShape = {
-//           id,
-//           tool,
-//           points: [pos.x, pos.y, pos.x, pos.y],
-//           color: penColor,
-//           size: penSize,
-//         };
-//         break;
-//       default:
-//         return;
-//     }
-//     setShapes([...shapes, newShape]);
-//   };
-
-//   const handleMouseMove = (e) => {
-//     if (!isDrawing.current || tool === "select") return;
-//     const stage = e.target.getStage();
-//     const point = stage.getPointerPosition();
-//     let lastShape = shapes[shapes.length - 1];
-//     if (!lastShape) return;
-
-//     if (tool === "eraser") {
-//       // Eraser logic
-//       const erasedShapes = shapes.filter((shape) => {
-//         if (shape.tool === "rectangle" || shape.tool === "circle") {
-//           // This logic is simple and may not be perfect for a real eraser
-//           const dx = point.x - shape.x;
-//           const dy = point.y - shape.y;
-//           return (
-//             Math.sqrt(dx * dx + dy * dy) > Math.max(shape.width, shape.height)
-//           );
-//         }
-//         return !shape.points?.some((p, idx) => {
-//           if (idx % 2 === 0) {
-//             const x = shape.points[idx];
-//             const y = shape.points[idx + 1];
-//             return Math.hypot(point.x - x, point.y - y) < eraserSize;
-//           }
-//           return false;
-//         });
-//       });
-//       setShapes(erasedShapes);
-//       return;
-//     }
-
-//     // Drawing logic
-//     switch (lastShape.tool) {
-//       case "pen":
-//       case "eraser":
-//         lastShape.points = lastShape.points.concat([point.x, point.y]);
-//         break;
-//       case "rectangle":
-//         lastShape.width = point.x - lastShape.x;
-//         lastShape.height = point.y - lastShape.y;
-//         break;
-//       case "circle": {
-//         const dx = point.x - lastShape.x;
-//         const dy = point.y - lastShape.y;
-//         lastShape.radius = Math.sqrt(dx * dx + dy * dy);
-//         break;
-//       }
-//       case "line":
-//         lastShape.points = [
-//           lastShape.points[0],
-//           lastShape.points[1],
-//           point.x,
-//           point.y,
-//         ];
-//         break;
-//       default:
-//         return;
-//     }
-
-//     shapes.splice(shapes.length - 1, 1, lastShape);
-//     setShapes([...shapes]);
-//   };
-
-//   const handleMouseUp = () => {
-//     if (!isDrawing.current) return;
-//     isDrawing.current = false;
-//     const newHistory = history.slice(0, historyStep + 1);
-//     setHistory([...newHistory, shapes]);
-//     setHistoryStep(historyStep + 1);
-//   };
-
-//   const handleUndo = () => {
-//     if (historyStep > 0) {
-//       const newStep = historyStep - 1;
-//       setHistoryStep(newStep);
-//       setShapes(history[newStep]);
-//     }
-//   };
-//   const handleRedo = () => {
-//     if (historyStep < history.length - 1) {
-//       const newStep = historyStep + 1;
-//       setHistoryStep(newStep);
-//       setShapes(history[newStep]);
-//     }
-//   };
-//   const handleClear = () => {
-//     setShapes([]);
-//     setBackgroundImage(null);
-//     setHistory([[]]);
-//     setHistoryStep(0);
-//   };
-//   const handleExport = () => {
-//     const uri = stageRef.current.toDataURL();
-//     const link = document.createElement("a");
-//     link.download = "whiteboard.png";
-//     link.href = uri;
-//     link.click();
-//   };
-//   const toggleDarkMode = () => {
-//     setDarkMode(!darkMode);
-//     document.body.classList.toggle("dark");
-//   };
-
-//   useEffect(() => {
-//     if (selectedId && transformerRef.current) {
-//       const selectedShape = stageRef.current.findOne("#" + selectedId);
-//       if (selectedShape) {
-//         transformerRef.current.nodes([selectedShape]);
-//       } else {
-//         transformerRef.current.nodes([]);
-//       }
-//     }
-//   }, [selectedId]);
-
-//   const cursorStyles = {
-//     pen: "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 height=%2224%22 width=%2224%22><path d=%22M3 21v-3l14-14 3 3-14 14H3z%22 fill=%22black%22/></svg>') 0 24, auto",
-//     eraser: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${eraserSize}" height="${eraserSize}"><rect x="0" y="0" width="${eraserSize}" height="${eraserSize}" fill="white" stroke="black" stroke-width="2"/></svg>') ${
-//       eraserSize / 2
-//     } ${eraserSize / 2}, auto`,
-//     rectangle: "crosshair",
-//     line: "crosshair",
-//     circle: "crosshair",
-//     select: "default",
-//   };
-
-//   return (
-//     <div className="flex justify-center items-center min-h-screen">
-//       <div className="flex rounded-xl shadow-lg p-4 relative w-[1100px] h-[600px]">
-//         <div className="whiteboard-container flex w-full h-full gap-2">
-//           <div
-//             className="canvas-wrapper flex-1 h-full rounded-xl overflow-hidden"
-//             style={{ cursor: cursorStyles[tool] || "default" }}
-//           >
-//             <Stage
-//               width={1100}
-//               height={600}
-//               onMouseDown={handleMouseDown}
-//               onMouseMove={handleMouseMove}
-//               onMouseUp={handleMouseUp}
-//               onClick={checkDeselect} // Add click handler to deselect
-//               ref={stageRef}
-//               style={{ backgroundColor: "var(--canvas-bg)" }}
-//             >
-//               <Layer>
-//                 {backgroundImage && (
-//                   <BackgroundImage imageUrl={backgroundImage} />
-//                 )}
-//                 {!backgroundImage && (
-//                   <Rect
-//                     x={0}
-//                     y={0}
-//                     width={1100}
-//                     height={600}
-//                     fill={darkMode ? "#1a202c" : "#ffffff"}
-//                   />
-//                 )}
-
-//                 {shapes.map((shape, i) => {
-
-//                   switch (shape.tool) {
-//                     case "pen":
-//                     case "eraser":
-//                       return (
-//                         <Line
-//                           key={i}
-//                           id={shape.id} // Set ID for selection
-//                           points={shape.points}
-//                           stroke={shape.color}
-//                           strokeWidth={shape.size}
-//                           tension={0.5}
-//                           lineCap="round"
-//                           globalCompositeOperation={
-//                             shape.tool === "eraser"
-//                               ? "destination-out"
-//                               : "source-over"
-//                           }
-//                           onClick={() =>
-//                             tool === "select" && setSelectedId(shape.id)
-//                           }
-//                           draggable={tool === "select"}
-//                           onDragEnd={(e) => {
-//                             const newShapes = shapes.slice();
-//                             newShapes[i] = {
-//                               ...newShapes[i],
-//                               x: e.target.x(),
-//                               y: e.target.y(),
-//                             };
-//                             setShapes(newShapes);
-//                           }}
-//                         />
-//                       );
-//                     case "rectangle":
-//                       return (
-//                         <Rect
-//                           key={i}
-//                           id={shape.id}
-//                           x={shape.x}
-//                           y={shape.y}
-//                           width={shape.width}
-//                           height={shape.height}
-//                           stroke={shape.color}
-//                           strokeWidth={shape.size}
-//                           draggable={tool === "select"}
-//                           onClick={() =>
-//                             tool === "select" && setSelectedId(shape.id)
-//                           }
-//                           onTransformEnd={(e) => {
-//                             const node = e.target;
-//                             const newShapes = shapes.slice();
-//                             newShapes[i] = {
-//                               ...newShapes[i],
-//                               x: node.x(),
-//                               y: node.y(),
-//                               width: node.width() * node.scaleX(),
-//                               height: node.height() * node.scaleY(),
-//                               rotation: node.rotation(),
-//                             };
-//                             setShapes(newShapes);
-//                           }}
-//                         />
-//                       );
-//                     case "circle":
-//                       return (
-//                         <Circle
-//                           key={i}
-//                           id={shape.id}
-//                           x={shape.x}
-//                           y={shape.y}
-//                           radius={shape.radius}
-//                           stroke={shape.color}
-//                           strokeWidth={shape.size}
-//                           draggable={tool === "select"}
-//                           onClick={() =>
-//                             tool === "select" && setSelectedId(shape.id)
-//                           }
-//                           onTransformEnd={(e) => {
-//                             const node = e.target;
-//                             const newShapes = shapes.slice();
-//                             newShapes[i] = {
-//                               ...newShapes[i],
-//                               x: node.x(),
-//                               y: node.y(),
-//                               radius: node.radius() * node.scaleX(),
-//                               rotation: node.rotation(),
-//                             };
-//                             setShapes(newShapes);
-//                           }}
-//                         />
-//                       );
-//                     default:
-//                       return null;
-//                   }
-//                 })}
-//                 <Transformer
-//                   ref={transformerRef}
-//                   rotateEnabled={true}
-//                   resizeEnabled={true}
-//                   visible={selectedId && tool === "select"}
-//                 />
-//               </Layer>
-//             </Stage>
-//           </div>
-
-//           <div className="toolbar flex flex-col gap-2 h-full w-24 items-center p-2 rounded-xl">
-//             <button onClick={toggleDarkMode} className="p-2 rounded-full">
-//               {darkMode ? "☀️" : "🌙"}
-//             </button>
-//             <button
-//               onClick={() => setTool("pen")}
-//               className={`p-2 rounded-full ${
-//                 tool === "pen" ? "bg-blue-100 text-blue-600" : ""
-//               }`}
-//             >
-//               <FaPen size={20} />
-//             </button>
-//             <button
-//               onClick={() => setTool("eraser")}
-//               className={`p-2 rounded-full ${
-//                 tool === "eraser" ? "bg-blue-100 text-blue-600" : ""
-//               }`}
-//             >
-//               <FaEraser size={20} />
-//             </button>
-//             <button
-//               onClick={() => setTool("select")}
-//               className={`p-2 rounded-full ${
-//                 tool === "select" ? "bg-blue-100 text-blue-600" : ""
-//               }`}
-//             >
-//               <FaMousePointer size={20} />
-//             </button>
-
-//        <div className="relative flex flex-col items-center">
-//                      <button
-//                        onClick={() => setShowShapes(!showShapes)}
-//                        className={`p-2 rounded-full ${
-//                          [
-//                            "rectangle",
-//                            "line",
-//                            "circle",
-//                            "triangle",
-//                            "ellipse",
-//                            "polygon",
-//                          ].includes(tool)
-//                            ? "bg-blue-100 text-blue-600"
-//                            : ""
-//                        }`}
-//                      >
-//                        <FaShapes size={20} />
-//                      </button>
-
-//                      {showShapes && (
-//                        <div className="absolute -left-56 top-1/2 -translate-y-1/2 border rounded-2xl shadow-xl p-3 z-20 w-52"
-//                        style={{ backgroundColor: "var(--toolbar-bg)" }}>
-//                          {/* 2D Shapes Section */}
-//                          <p className="text-xs font-semibold mb-2 ">2D Shapes</p>
-//                          <div className="grid grid-cols-3 gap-2 mb-3">
-//                            <button
-//                              onClick={() => {
-//                                setTool("rectangle");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-blue-500 flex justify-center items-center"
-//                            >
-//                              <FaSquare />
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setTool("circle");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-blue-500 flex justify-center items-center"
-//                            >
-//                              <FaCircle />
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setTool("triangle");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-blue-500 flex justify-center items-center"
-//                            >
-//                              ▲
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setTool("ellipse");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-blue-500 flex justify-center items-center"
-//                            >
-//                              ⬭
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setTool("polygon");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-blue-500 flex justify-center items-center"
-//                            >
-//                              ⬠
-//                            </button>
-//                          </div>
-
-//                          {/* Lines Section */}
-//                          <p className="text-xs font-semibold mb-2">Lines</p>
-//                          <div className="grid grid-cols-3 gap-2 mb-3">
-//                            <button
-//                              onClick={() => {
-//                                setTool("line");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-green-500 flex justify-center items-center"
-//                            >
-//                              <FaSlash />
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setLineStyle("solid");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-green-500 text-xs"
-//                            >
-//                              Solid
-//                            </button>
-//                            <button
-//                              onClick={() => {
-//                                setLineStyle("dashed");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-green-500 text-xs"
-//                            >
-//                              Dashed
-//                            </button>
-//                          </div>
-
-//                          {/* 3D Shapes Section */}
-//                          <p className="text-xs font-semibold mb-2">
-//                            3D Shapes (Future)
-//                          </p>
-//                          <div className="grid grid-cols-3 gap-2">
-//                            {/* Cube icon from Heroicons */}
-//                            <button
-//                              onClick={() => {
-//                                setTool("cube");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-red-500 flex justify-center items-center"
-//                            >
-//                              <HiOutlineCube size={20} />
-//                            </button>
-//                            {/* Sphere icon is not available, using "globe" as a substitute */}
-//                            <button
-//                              onClick={() => {
-//                                setTool("sphere");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-red-500 flex justify-center items-center"
-//                            >
-//                              <HiOutlineGlobe size={20} />
-//                            </button>
-//                            {/* Cylinder icon is not available, using a related icon as a substitute */}
-//                            <button
-//                              onClick={() => {
-//                                setTool("cylinder");
-//                                setShowShapes(false);
-//                              }}
-//                              className="p-2 border rounded hover:bg-red-500 flex justify-center items-center"
-//                            >
-//                              <HiOutlineDesktopComputer size={20} />
-//                            </button>
-//                          </div>
-
-//                          {/* --- Pen Size Selector --- */}
-//                          {tool === "pen" && (
-//                            <div className="flex flex-col items-center mt-2  p-2 rounded-lg shadow-md">
-//                              <label className="text-xs mb-1 ">
-//                                Pen Size
-//                              </label>
-//                              <input
-//                                type="range"
-//                                min="1"
-//                                max="20"
-//                                value={penSize}
-//                                onChange={(e) => setPenSize(Number(e.target.value))}
-//                                className="w-full"
-//                              />
-//                              <span className="text-xs mt-1">{penSize}px</span>
-//                            </div>
-//                          )}
-
-//                          {/* --- Eraser Size Selector --- */}
-//                          {tool === "eraser" && (
-//                            <div className="flex flex-col items-center mt-2 p-2 rounded-lg shadow-md">
-//                              <label className="text-xs mb-1 ">Eraser Size</label>
-//                              <input
-//                                type="range"
-//                                min="5"
-//                                max="50"
-//                                value={eraserSize}
-//                                onChange={(e) => setEraserSize(Number(e.target.value))}
-//                                className="w-full"
-//                              />
-//                              <span className="text-xs mt-1 ">{eraserSize}px</span>
-//                            </div>
-//                          )}
-//                        </div>
-//                      )}
-//                    </div>
-
-//             <div className="relative mt-2">
-//               <button
-//                 onClick={() => setShowColors(!showColors)}
-//                 className="w-6 h-6 rounded-full border"
-//                 style={{ backgroundColor: penColor }}
-//               />
-//               {showColors && (
-//                 <div
-//                   className="absolute left-1/2 mt-1 -translate-x-1/2 border rounded shadow-md p-2 w-max"
-//                   style={{ backgroundColor: "var(--toolbar-bg)" }}
-//                 >
-//                   <div className="grid grid-cols-3 gap-2">
-//                     {colors.map((color) => (
-//                       <button
-//                         key={color}
-//                         onClick={() => {
-//                           setPenColor(color);
-//                           setShowColors(false);
-//                         }}
-//                         className={`w-6 h-6 rounded-full border-2 ${
-//                           penColor === color
-//                             ? "border-black"
-//                             : "border-transparent"
-//                         }`}
-//                         style={{ backgroundColor: color }}
-//                       />
-//                     ))}
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-//             <button onClick={handleUndo} className="p-2 rounded-full">
-//               <FaUndo size={20} />
-//             </button>
-//             <button onClick={handleRedo} className="p-2 rounded-full">
-//               <FaRedo size={20} />
-//             </button>
-//             <button onClick={handleClear} className="p-2 rounded-full">
-//               <FaTrash size={20} />
-//             </button>
-//             <button onClick={handleExport} className="p-2 rounded-full">
-//               <FaDownload size={20} />
-//             </button>
-//             <input
-//               type="file"
-//               accept="image/*"
-//               id="import-image"
-//               className="hidden"
-//               onChange={(e) => {
-//                 const file = e.target.files[0];
-//                 if (!file) return;
-//                 const reader = new FileReader();
-//                 reader.onload = () => setBackgroundImage(reader.result);
-//                 reader.readAsDataURL(file);
-//               }}
-//             />
-//             <label
-//               htmlFor="import-image"
-//               className="p-2 rounded-full cursor-pointer"
-//             >
-//               <FaFileImport size={20} />
-//             </label>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Tension;
-
-
-
-//resize, circle and triangle outside boundary problem
-
-import React, { useRef, useState, useEffect } from "react";
-import { Stage, Layer, Line, Rect, Image as KonvaImage, Circle, Transformer } from "react-konva";
+import { useRef, useState, useEffect } from "react";
+import { Stage, Layer, Line, Rect, Image as KonvaImage, Circle, Transformer, Ellipse, Group, RegularPolygon, Arrow } from "react-konva";
 import useImage from "use-image";
 import {
     FaPen,
@@ -757,7 +56,7 @@ const ImageShape = ({ shape, isSelected, onSelect, onChange, tool }) => {
     );
 };
 
-export default function Tension() {
+export default function Minding() {
     const stageRef = useRef(null);
     const isDrawing = useRef(false);
     const transformerRef = useRef(null);
@@ -779,7 +78,6 @@ export default function Tension() {
     const [darkMode, setDarkMode] = useState(false);
     const [showColors, setShowColors] = useState(false);
     const [showShapes, setShowShapes] = useState(false);
-    const [, setLineStyle] = useState(null);
 
     const colors = ["#000000", "#FF0000", "#008000", "#0000FF", "#f3f4f6", "#FFCDD2", "#FFF59D", "#BBDEFB"];
 
@@ -846,7 +144,47 @@ export default function Tension() {
                     size: penSize,
                 };
                 break;
+            case "ellipse":
+                newShape = { id, tool, x: pos.x, y: pos.y, radiusX: 0, radiusY: 0, color: penColor, size: penSize };
+                break;
 
+            case "polygon": // default hexagon (6 sides)
+                newShape = { id, tool, x: pos.x, y: pos.y, sides: 6, radius: 0, color: penColor, size: penSize };
+                break;
+
+            case "arrow":
+            case "dashed":
+                newShape = {
+                    id,
+                    tool,
+                    points: [pos.x, pos.y, pos.x + 1, pos.y + 1], // start + dummy end point
+                    color: penColor,
+                    size: penSize,
+                };
+                break;
+
+
+
+            case "cube":
+                newShape = {
+                    id,
+                    tool,
+                    x: pos.x,
+                    y: pos.y,
+                    size: 0,
+                    color: penColor,
+                    stroke: penColor
+                };
+                break;
+
+
+            case "sphere":
+                newShape = { id, tool, x: pos.x, y: pos.y, radius: 0, color: penColor, size: penSize };
+                break;
+
+            case "cylinder":
+                newShape = { id, tool, x: pos.x, y: pos.y, width: 0, height: 0, color: penColor, size: penSize };
+                break;
             default:
                 return;
         }
@@ -860,35 +198,7 @@ export default function Tension() {
         let lastShape = shapes[shapes.length - 1];
         if (!lastShape) return;
 
-        // if (tool === "eraser") {
-        //     const erasedShapes = shapes.filter((shape) => {
-        //         if (shape.tool === "rectangle") {
-        //             return !(
-        //                 point.x > shape.x &&
-        //                 point.x < shape.x + shape.width &&
-        //                 point.y > shape.y &&
-        //                 point.y < shape.y + shape.height
-        //             );
-        //         } else if (shape.tool === "circle") {
-        //             const dx = point.x - shape.x;
-        //             const dy = point.y - shape.y;
-        //             return Math.sqrt(dx * dx + dy * dy) > shape.radius;
-        //         } else if (shape.tool === "pen" || shape.tool === "line") {
-        //             return !shape.points?.some((px, idx) => {
-        //                 if (idx % 2 === 0) {
-        //                     const x = shape.points[idx];
-        //                     const y = shape.points[idx + 1];
-        //                     return Math.hypot(point.x - x, point.y - y) < eraserSize;
-        //                 }
-        //                 return false;
-        //             });
-        //         } else {
-        //             return true; // don't erase unknown shapes
-        //         }
-        //     });
-        //     setShapes(erasedShapes);
-        //     return;
-        // }
+
         if (tool === "eraser") {
             const stage = e.target.getStage();
             const point = stage.getPointerPosition();
@@ -902,27 +212,58 @@ export default function Tension() {
                 let erase = false;
 
                 if (shape.tool === "rectangle") {
-    const minX = Math.min(shape.x, shape.x + shape.width);
-    const maxX = Math.max(shape.x, shape.x + shape.width);
-    const minY = Math.min(shape.y, shape.y + shape.height);
-    const maxY = Math.max(shape.y, shape.y + shape.height);
+                    const minX = Math.min(shape.x, shape.x + shape.width);
+                    const maxX = Math.max(shape.x, shape.x + shape.width);
+                    const minY = Math.min(shape.y, shape.y + shape.height);
+                    const maxY = Math.max(shape.y, shape.y + shape.height);
 
-    erase =
-        point.x >= minX &&
-        point.x <= maxX &&
-        point.y >= minY &&
-        point.y <= maxY;
-}
-else if (shape.tool === "circle") {
+                    erase =
+                        point.x >= minX &&
+                        point.x <= maxX &&
+                        point.y >= minY &&
+                        point.y <= maxY;
+                }
+                else if (shape.tool === "circle") {
                     const dx = point.x - shape.x;
                     const dy = point.y - shape.y;
                     erase = Math.sqrt(dx * dx + dy * dy) <= shape.radius;
                 } else if (shape.tool === "pen" || shape.tool === "line") {
-                    if (shape.points && shape.points.length > 1) {
-                        for (let idx = 0; idx < shape.points.length; idx += 2) {
-                            const x = shape.points[idx];
-                            const y = shape.points[idx + 1];
-                            if (Math.hypot(point.x - x, point.y - y) <= eraserSize) {
+                    if (shape.points && shape.points.length > 3) {
+                        for (let idx = 0; idx < shape.points.length - 2; idx += 2) {
+                            const x1 = shape.points[idx];
+                            const y1 = shape.points[idx + 1];
+                            const x2 = shape.points[idx + 2];
+                            const y2 = shape.points[idx + 3];
+
+                            // --- Inline point-to-segment distance ---
+                            const A = point.x - x1;
+                            const B = point.y - y1;
+                            const C = x2 - x1;
+                            const D = y2 - y1;
+
+                            const dot = A * C + B * D;
+                            const lenSq = C * C + D * D;
+                            let param = -1;
+                            if (lenSq !== 0) param = dot / lenSq;
+
+                            let xx, yy;
+                            if (param < 0) {
+                                xx = x1;
+                                yy = y1;
+                            } else if (param > 1) {
+                                xx = x2;
+                                yy = y2;
+                            } else {
+                                xx = x1 + param * C;
+                                yy = y1 + param * D;
+                            }
+
+                            const dx = point.x - xx;
+                            const dy = point.y - yy;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            // --- End inline distance ---
+
+                            if (dist <= eraserSize) {
                                 erase = true;
                                 break;
                             }
@@ -945,7 +286,118 @@ else if (shape.tool === "circle") {
                     const area3 = Math.abs((x3 - point.x) * (y1 - point.y) - (x1 - point.x) * (y3 - point.y));
 
                     erase = area1 + area2 + area3 <= areaOrig + 0.1; // small tolerance
+                } else if (shape.tool === "ellipse") {
+                    const dx = (point.x - shape.x) / shape.radiusX;
+                    const dy = (point.y - shape.y) / shape.radiusY;
+                    erase = dx * dx + dy * dy <= 1; // inside ellipse formula
                 }
+
+
+
+                else if (shape.tool === "arrow" || shape.tool === "dashed") {
+                    if (shape.points && shape.points.length >= 4) {
+                        const [x1, y1, x2, y2] = shape.points;
+
+                        // Distance from point to line segment
+                        const A = point.x - x1;
+                        const B = point.y - y1;
+                        const C = x2 - x1;
+                        const D = y2 - y1;
+
+                        const dot = A * C + B * D;
+                        const len_sq = C * C + D * D;
+                        let param = -1;
+                        if (len_sq !== 0) param = dot / len_sq;
+
+                        let xx, yy;
+                        if (param < 0) {
+                            xx = x1; yy = y1;
+                        } else if (param > 1) {
+                            xx = x2; yy = y2;
+                        } else {
+                            xx = x1 + param * C;
+                            yy = y1 + param * D;
+                        }
+
+                        const dx = point.x - xx;
+                        const dy = point.y - yy;
+                        erase = Math.sqrt(dx * dx + dy * dy) <= eraserSize;
+                    }
+                }
+
+                // Polygon erase check
+                else if (shape.tool === "polygon") {
+                    if (shape.sides && shape.radius) {
+                        const dx = point.x - shape.x;
+                        const dy = point.y - shape.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist <= shape.radius + eraserSize) {
+                            erase = true;
+                        }
+                    }
+                }
+
+                // Cube erase check
+                else if (shape.tool === "cube") {
+                    const size = shape.size;
+                    const minX = shape.x;
+                    const maxX = shape.x + size;
+                    const minY = shape.y - size / 2;
+                    const maxY = shape.y + size / 2;
+                    if (
+                        point.x >= minX - eraserSize &&
+                        point.x <= maxX + eraserSize &&
+                        point.y >= minY - eraserSize &&
+                        point.y <= maxY + eraserSize
+                    ) {
+                        erase = true;
+                    }
+                }
+
+                // Cylinder erase check
+                else if (shape.tool === "cylinder") {
+                    const dx = (point.x - (shape.x + shape.width / 2)) / (shape.width / 2);
+                    const dyTop = (point.y - shape.y) / 10;
+                    const dyBottom = (point.y - (shape.y + shape.height)) / 10;
+
+                    const insideTop = dx * dx + dyTop * dyTop <= 1;
+                    const insideBottom = dx * dx + dyBottom * dyBottom <= 1;
+
+                    const insideBody =
+                        point.x >= shape.x - eraserSize &&
+                        point.x <= shape.x + shape.width + eraserSize &&
+                        point.y >= shape.y - eraserSize &&
+                        point.y <= shape.y + shape.height + eraserSize;
+
+                    if (insideTop || insideBottom || insideBody) {
+                        erase = true;
+                    }
+                }
+
+                else if (shape.tool === "cube") {
+                    const minX = shape.x;
+                    const maxX = shape.x + shape.size;
+                    const minY = shape.y;
+                    const maxY = shape.y + shape.size;
+
+                    erase =
+                        point.x >= minX &&
+                        point.x <= maxX &&
+                        point.y >= minY &&
+                        point.y <= maxY;
+                }
+
+
+
+
+                else if (shape.tool === "sphere") {
+                    // Same as circle
+                    const dx = point.x - shape.x;
+                    const dy = point.y - shape.y;
+                    erase = Math.sqrt(dx * dx + dy * dy) <= shape.radius;
+                }
+
+
 
 
                 if (erase) {
@@ -959,36 +411,7 @@ else if (shape.tool === "circle") {
         }
 
 
-        // drawing logic
-        // switch (lastShape.tool) {
-        //     case "pen":
-        //         lastShape.points = lastShape.points.concat([point.x, point.y]);
-        //         break;
 
-        //     case "eraser":
-
-        // case "rectangle":
-        //     lastShape.width = point.x - lastShape.x;
-        //     lastShape.height = point.y - lastShape.y;
-        //     break;
-        //     case "circle": {
-        //         const dx = point.x - lastShape.x;
-        //         const dy = point.y - lastShape.y;
-        //         lastShape.radius = Math.sqrt(dx * dx + dy * dy);
-        //         break;
-        //     }
-        //     case "triangle": {
-        //         lastShape.width = point.x - lastShape.x;
-        //         lastShape.height = point.y - lastShape.y;
-        //         break;
-        //     }
-
-        //     case "line":
-        //         lastShape.points = [lastShape.points[0], lastShape.points[1], point.x, point.y];
-        //         break;
-        //     default:
-        //         return;
-        // }
         switch (lastShape.tool) {
             case "pen":
                 // Clamp pen points inside canvas
@@ -1054,7 +477,49 @@ else if (shape.tool === "circle") {
                     Math.max(0, Math.min(point.y, 600)),
                 ];
                 break;
+            case "ellipse": {
+                lastShape.radiusX = Math.abs(point.x - lastShape.x);
+                lastShape.radiusY = Math.abs(point.y - lastShape.y);
+                break;
+            }
 
+            case "polygon": {
+                const dx = point.x - lastShape.x;
+                const dy = point.y - lastShape.y;
+                lastShape.radius = Math.sqrt(dx * dx + dy * dy);
+                break;
+            }
+            case "arrow":
+            case "dashed":
+                lastShape.points = [
+                    lastShape.points[0],  // x1
+                    lastShape.points[1],  // y1
+                    point.x,              // x2
+                    point.y               // y2
+                ];
+                break;
+
+
+
+            case "cube": {
+                const dx = point.x - lastShape.x;
+                const dy = point.y - lastShape.y;
+                lastShape.size = Math.max(Math.abs(dx), Math.abs(dy));
+                break;
+            }
+
+
+            case "sphere": {
+                const dx = point.x - lastShape.x;
+                const dy = point.y - lastShape.y;
+                lastShape.radius = Math.sqrt(dx * dx + dy * dy);
+                break;
+            }
+
+            case "cylinder":
+                lastShape.width = point.x - lastShape.x;
+                lastShape.height = point.y - lastShape.y;
+                break;
             default:
                 break;
         }
@@ -1115,26 +580,7 @@ else if (shape.tool === "circle") {
         document.body.classList.toggle("dark");
     };
 
-    //   useEffect(() => {
-    //   const tr = transformerRef.current;
-    //   const stage = stageRef.current;
-    //   if (!tr || !stage) return;
 
-    //   if (selectedId && tool === "select") {
-    //     const selectedShape = shapes.find((s) => s.id === selectedId);
-
-    //     if (selectedShape && selectedShape.tool !== "pen" && selectedShape.tool !== "eraser") {
-    //       const node = stage.findOne("#" + selectedId);
-    //       tr.nodes(node ? [node] : []);
-    //     } else {
-    //       tr.nodes([]); // no transformer for pen/eraser
-    //     }
-    //   } else {
-    //     tr.nodes([]); // clear transformer
-    //   }
-
-    //   tr.getLayer()?.batchDraw();
-    // }, [selectedId, tool]);
 
     useEffect(() => {
         const tr = transformerRef.current;
@@ -1170,12 +616,11 @@ else if (shape.tool === "circle") {
         circle: "crosshair",
         select: "default",
     };
-    
+
     return (
         <div className="flex justify-center items-center min-h-screen">
-            <div className="flex rounded-xl shadow-lg p-4 relative w-[1100px] h-[600px]">
-                <div className="whiteboard-container flex w-full h-full gap-2">
-                    <div className="canvas-wrapper flex-1 h-full rounded-xl overflow-hidden" style={{ cursor: cursorStyles[tool] || "default" }}>
+                   <div className="whiteboard-container">
+                     <div className="canvas-wrapper flex-1 h-full rounded-xl overflow-hidden" style={{ cursor: cursorStyles[tool] || "default" }}>
                         <Stage
                             width={1100}
                             height={600}
@@ -1211,26 +656,7 @@ else if (shape.tool === "circle") {
 
                                         case "eraser":
                                             return null; // don’t render anything visually
-                                        // case "eraser":
-                                        //   return (
-                                        //     <Line
-                                        //       key={i}
-                                        //       id={shape.id}
-                                        //       points={shape.points}
-                                        //       stroke={shape.color}
-                                        //       strokeWidth={shape.size}
-                                        //       tension={0.5}
-                                        //       lineCap="round"
-                                        //       globalCompositeOperation={shape.tool === "eraser" ? "destination-out" : "source-over"}
-                                        //       onClick={() => tool === "select" && setSelectedId(shape.id)}
-                                        //       draggable={tool === "select"}
-                                        //       onDragEnd={(e) => {
-                                        //         const newShapes = shapes.slice();
-                                        //         newShapes[i] = { ...newShapes[i], x: e.target.x(), y: e.target.y() };
-                                        //         setShapes(newShapes);
-                                        //       }}
-                                        //     />
-                                        //   );
+
 
                                         case "line": // straight line
                                             return (
@@ -1278,7 +704,7 @@ else if (shape.tool === "circle") {
                                                         node.scaleX(1);
                                                         node.scaleY(1);
                                                     }}
-                                                    
+
                                                 />
                                             );
                                         case "triangle":
@@ -1344,6 +770,178 @@ else if (shape.tool === "circle") {
                                                     }}
                                                 />
                                             );
+                                        case "ellipse":
+                                            return (
+                                                <Ellipse
+                                                    key={i}
+                                                    id={shape.id}
+                                                    x={shape.x}
+                                                    y={shape.y}
+                                                    radiusX={Math.abs(shape.radiusX)}
+                                                    radiusY={Math.abs(shape.radiusY)}
+                                                    stroke={shape.color}
+                                                    strokeWidth={shape.size}
+                                                    draggable={tool === "select"}
+                                                />
+                                            );
+
+                                        case "polygon":
+                                            return (
+                                                <RegularPolygon
+                                                    key={i}
+                                                    id={shape.id}
+                                                    x={shape.x}
+                                                    y={shape.y}
+                                                    sides={shape.sides}
+                                                    radius={shape.radius}
+                                                    stroke={shape.color}
+                                                    strokeWidth={shape.size}
+                                                    draggable={tool === "select"}
+                                                />
+                                            );
+
+                                        case "arrow":
+                                            return (
+                                                <Arrow
+                                                    key={i}
+                                                    id={shape.id}
+                                                    points={shape.points}
+                                                    stroke={shape.color}
+                                                    strokeWidth={shape.size}
+                                                    fill={shape.color}         // arrowhead color
+                                                    pointerLength={12}
+                                                    pointerWidth={12}
+                                                    lineCap="round"
+                                                    lineJoin="round"
+                                                    hitStrokeWidth={20}        // 👈 makes it selectable
+                                                    draggable={tool === "select"}
+                                                />
+                                            );
+
+                                        case "dashed":
+                                            return (
+                                                <Line
+                                                    key={i}
+                                                    id={shape.id}
+                                                    points={shape.points}
+                                                    stroke={shape.color}
+                                                    strokeWidth={shape.size}
+                                                    dash={[10, 5]}             // dashed effect
+                                                    lineCap="round"
+                                                    lineJoin="round"
+                                                    hitStrokeWidth={20}        // 👈 easier to select
+                                                    draggable={tool === "select"}
+                                                />
+                                            );
+
+
+
+                                        case "cube": {
+                                            const size = shape.size;
+                                            const offset = size / 2; // depth offset for 3D effect
+
+                                            // Front face
+                                            const frontPoints = [
+                                                shape.x, shape.y,
+                                                shape.x + size, shape.y,
+                                                shape.x + size, shape.y + size,
+                                                shape.x, shape.y + size
+                                            ];
+
+                                            // Back face (shifted by offset)
+                                            const backPoints = [
+                                                shape.x + offset, shape.y - offset,
+                                                shape.x + size + offset, shape.y - offset,
+                                                shape.x + size + offset, shape.y + size - offset,
+                                                shape.x + offset, shape.y + size - offset
+                                            ];
+
+                                            return (
+                                                <Group key={i} draggable={tool === "select"}>
+                                                    {/* Front face */}
+                                                    <Line
+                                                        id={shape.id}
+                                                        points={frontPoints}
+                                                        stroke={shape.color}
+                                                        closed
+                                                    />
+
+                                                    {/* Back face */}
+                                                    <Line
+                                                        points={backPoints}
+                                                        stroke={shape.color}
+                                                        closed
+                                                    />
+
+                                                    {/* Connectors */}
+                                                    <Line
+                                                        points={[frontPoints[0], frontPoints[1], backPoints[0], backPoints[1]]}
+                                                        stroke={shape.color}
+                                                    />
+                                                    <Line
+                                                        points={[frontPoints[2], frontPoints[3], backPoints[2], backPoints[3]]}
+                                                        stroke={shape.color}
+                                                    />
+                                                    <Line
+                                                        points={[frontPoints[4], frontPoints[5], backPoints[4], backPoints[5]]}
+                                                        stroke={shape.color}
+                                                    />
+                                                    <Line
+                                                        points={[frontPoints[6], frontPoints[7], backPoints[6], backPoints[7]]}
+                                                        stroke={shape.color}
+                                                    />
+                                                </Group>
+                                            );
+                                        }
+
+
+                                        case "sphere":
+                                            return (
+                                                <Circle
+                                                    key={i}
+                                                    id={shape.id}
+                                                    x={shape.x}
+                                                    y={shape.y}
+                                                    radius={shape.radius}
+                                                    stroke={shape.color}
+                                                    strokeWidth={shape.size}
+                                                    fillLinearGradientStartPoint={{ x: -shape.radius, y: -shape.radius }}
+                                                    fillLinearGradientEndPoint={{ x: shape.radius, y: shape.radius }}
+                                                    fillLinearGradientColorStops={[0, "white", 1, shape.color]}
+                                                    draggable={tool === "select"}
+                                                />
+                                            );
+
+                                        case "cylinder":
+                                            return (
+                                                <Group key={i} draggable={tool === "select"}>
+                                                    <Rect
+                                                        x={shape.x}
+                                                        y={shape.y}
+                                                        width={shape.width}
+                                                        height={shape.height}
+                                                        stroke={shape.color}
+                                                        strokeWidth={shape.size}
+                                                    />
+                                                    <Ellipse
+                                                        x={shape.x + shape.width / 2}
+                                                        y={shape.y}
+                                                        radiusX={Math.abs(shape.width / 2)}
+                                                        radiusY={10}
+                                                        stroke={shape.color}
+                                                        strokeWidth={shape.size}
+                                                    />
+                                                    <Ellipse
+                                                        x={shape.x + shape.width / 2}
+                                                        y={shape.y + shape.height}
+                                                        radiusX={Math.abs(shape.width / 2)}
+                                                        radiusY={10}
+                                                        stroke={shape.color}
+                                                        strokeWidth={shape.size}
+                                                    />
+                                                </Group>
+                                            );
+
                                         case "image":
                                             return (
                                                 <ImageShape
@@ -1364,12 +962,21 @@ else if (shape.tool === "circle") {
                                     }
                                 })}
 
-                                <Transformer ref={transformerRef} rotateEnabled resizeEnabled visible={Boolean(selectedId && tool === "select")} />
+                                <Transformer
+                                    ref={transformerRef}
+                                    visible={Boolean(selectedId && tool === "select")}
+                                    rotateEnabled={true}
+                                    enabledAnchors={[
+                                        "top-left", "top-right", "bottom-left", "bottom-right",
+                                        "middle-left", "middle-right", "top-center", "bottom-center"
+                                    ]}
+                                />
+
                             </Layer>
                         </Stage>
                     </div>
 
-                    <div className="toolbar flex flex-col gap-2 h-full w-24 items-center p-2 rounded-xl">
+                    <div className="toolbar h-full w-18 items-center p-2 rounded-xl">
                         <button onClick={toggleDarkMode} className="p-2 rounded-full">{darkMode ? "☀️" : "🌙"}</button>
 
                         <button onClick={() => setTool("pen")} className={`p-2 rounded-full ${tool === "pen" ? "bg-blue-100 text-blue-600" : ""}`}>
@@ -1385,7 +992,7 @@ else if (shape.tool === "circle") {
                         <div className="relative flex flex-col items-center">
                             <button
                                 onClick={() => setShowShapes(!showShapes)}
-                                className={`p-2 rounded-full ${["rectangle", "line", "circle", "triangle", "ellipse", "polygon"].includes(tool) ? "bg-blue-100 text-blue-600" : ""}`}
+                                className={`p-2 rounded-full ${["rectangle", "line", "circle", "triangle", "ellipse", "polygon", "dashed", "arrow", "cube", "sphere", "cylinder"].includes(tool) ? "bg-blue-100 text-blue-600" : ""}`}
                             >
                                 <FaShapes size={20} />
                             </button>
@@ -1418,10 +1025,10 @@ else if (shape.tool === "circle") {
                                         <button onClick={() => { setTool("line"); setShowShapes(false); }} className="p-2 border rounded hover:bg-green-500 flex justify-center items-center">
                                             <FaSlash />
                                         </button>
-                                        <button onClick={() => { setLineStyle("solid"); setShowShapes(false); }} className="p-2 border rounded hover:bg-green-500 text-xs">
-                                            Solid
+                                        <button onClick={() => { setTool("arrow"); setShowShapes(false); }} className="p-2 border rounded hover:bg-green-500 text-xs">
+                                            Arrow
                                         </button>
-                                        <button onClick={() => { setLineStyle("dashed"); setShowShapes(false); }} className="p-2 border rounded hover:bg-green-500 text-xs">
+                                        <button onClick={() => { setTool("dashed"); setShowShapes(false); }} className="p-2 border rounded hover:bg-green-500 text-xs">
                                             Dashed
                                         </button>
                                     </div>
@@ -1522,8 +1129,7 @@ else if (shape.tool === "circle") {
                             <FaFileImport size={20} />
                         </label>
                     </div>
-                </div>
-            </div>
+                   </div>
         </div>
     );
 }
