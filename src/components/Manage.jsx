@@ -754,11 +754,21 @@ useEffect(() => {
   };
 
   const handleClear = () => {
-    setShapes([]);
-    setBackgroundImage(null);
-    setHistory([[]]);
-    setHistoryStep(0);
-  };
+  // Clear shapes and background
+  setShapes([]);
+  setBackgroundImage(null);
+
+  // Reset history
+  setHistory([[]]);
+  setHistoryStep(0);
+
+  // Clear transformer
+  setSelectedId(null);
+  if (transformerRef.current) {
+    transformerRef.current.nodes([]);
+    transformerRef.current.getLayer()?.batchDraw();
+  }
+};
   const handleExport = () => {
     const uri = stageRef.current.toDataURL();
     const link = document.createElement("a");
@@ -1795,3 +1805,4 @@ useEffect(() => {
     </div>
   );
 }
+
