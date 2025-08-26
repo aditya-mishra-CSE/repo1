@@ -2325,6 +2325,7 @@ case "line":
                         }}
                         onDragEnd={(e) => handleDragEnd(e, i)}
                       >
+                        
                         {/* Front */}
                         <Line points={front} stroke={shape.color} closed />
                         {/* Back */}
@@ -3344,3 +3345,4 @@ case "line":
     </div>
   );
 }
+
