@@ -2922,12 +2922,34 @@ else if (shape.tool === "pyramid") {
             }
         }
     };
+    // const handleDelete = () => {
+    //     if (selectedId) {
+    //         setShapes(shapes.filter((shape) => shape.id !== selectedId));
+    //         setSelectedId(null); // clear selection after delete
+    //     }
+    // };
     const handleDelete = () => {
-        if (selectedId) {
-            setShapes(shapes.filter((shape) => shape.id !== selectedId));
-            setSelectedId(null); // clear selection after delete
-        }
-    };
+  if (selectedId) {
+    const newShapes = shapes.filter((shape) => shape.id !== selectedId);
+
+    // ✅ Update shapes
+    setShapes(newShapes);
+
+    // ✅ Push new state into history for undo/redo
+    const newHistory = history.slice(0, historyStep + 1);
+    newHistory.push(newShapes);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length - 1);
+
+    // ✅ Clear selection + transformer
+    setSelectedId(null);
+    const tr = transformerRef.current;
+    if (tr) {
+      tr.nodes([]); 
+      tr.getLayer()?.batchDraw();
+    }
+  }
+};
 
     const handleClear = () => {
         // Clear shapes and background
@@ -5001,5 +5023,6 @@ else if (shape.tool === "pyramid") {
         </div>
     );
 }
+
 
 
